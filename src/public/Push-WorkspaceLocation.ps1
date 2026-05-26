@@ -6,21 +6,15 @@ Pushes the current VS Code editor workspace location to the location stack.
 VSCode
 
 .LINK
-Test-Variable.ps1
-
-.LINK
-Stop-ThrowError.ps1
-
-.LINK
 Push-Location
 
 .EXAMPLE
-Push-WorkspaceLocation.ps1
+Push-WorkspaceLocation
 
 Pushes the current directory onto the stack, and changes to the workspace directory.
 #>
 
-#Requires -Version 3
 [CmdletBinding()][OutputType([void])] Param()
+#TODO: Add or replace dependency.
 if(Test-Variable.ps1 psEditor) {Push-Location $psEditor.Workspace.Path}
-else {Stop-ThrowError.ps1 'Missing psEditor object' -NotImplemented}
+else {throw 'Missing psEditor object'}

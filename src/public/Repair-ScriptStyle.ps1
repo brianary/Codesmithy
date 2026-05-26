@@ -9,23 +9,21 @@ Scripts
 https://docs.microsoft.com/powershell/module/psscriptanalyzer/invoke-scriptanalyzer
 
 .EXAMPLE
-Repair-ScriptStyle.ps1 .\Repair-ScriptStyle.ps1
+Repair-ScriptStyle .\MyScript.ps1
 
- PSAvoidUsingWriteHost in A:\Scripts\Repair-ScriptStyle.ps1
+ PSAvoidUsingWriteHost in A:\Scripts\MyScript.ps1
  (!) Warning
  Lines: 19, 24, 25, 26, 27, 31, 32
- File 'Repair-ScriptStyle.ps1' uses Write-Info.ps1. Avoid using Write-Info.ps1 because it might not work in all hosts,
+ File 'MyScript.ps1' uses Write-Host. Avoid using Write-Host because it might not work in all hosts,
 does not work when there is no host, and (prior to PS 5.0) cannot be suppressed, captured, or redirected.
 Instead, use Write-Output, Write-Verbose, or Write-Information.
 
 Confirm
 Are you sure you want to perform this action?
-Performing the operation "provide justification" on target "PSAvoidUsingWriteHost in A:\Scripts\Repair-ScriptStyle.ps1".
+Performing the operation "provide justification" on target "PSAvoidUsingWriteHost in A:\Scripts\MyScript.ps1".
 [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"):
 #>
 
-#Requires -Version 3
-#Requires -Modules PSScriptAnalyzer
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost','',
 Justification='This script is not intended for pipeline redirection. Also, it uses color.')]
 [CmdletBinding(ConfirmImpact='High',SupportsShouldProcess=$true)] Param(
@@ -39,20 +37,20 @@ Process
 	foreach($rule in Invoke-ScriptAnalyzer $Path |Group-Object RuleName)
 	{
 		$name = $rule.Name
-		Write-Info.ps1 " $name in $Path " -ForegroundColor Magenta -BackgroundColor White
+		Write-Information " $name in $Path "
 		foreach($severity in $rule.Group |Group-Object Severity)
 		{
 			switch($severity.Name)
 			{
-				Information {Write-Info.ps1 ' 🆗 Information ' -ForegroundColor Blue -BackgroundColor White}
-				Warning {Write-Info.ps1 ' ⚠️ Warning ' -ForegroundColor Yellow -BackgroundColor DarkGray}
-				Error {Write-Info.ps1 ' ❌ Error ' -ForegroundColor Red -BackgroundColor White}
-				default {Write-Info.ps1 " $($severity.Name) " -ForegroundColor Cyan -BackgroundColor White}
+				Information {Write-Information ' 🆗 Information '}
+				Warning {Write-Information ' ⚠️ Warning '}
+				Error {Write-Information ' ❌ Error '}
+				default {Write-Information " $($severity.Name) "}
 			}
 			foreach($message in $severity.Group |Group-Object Message)
 			{
-				Write-Info.ps1 " Lines: $($message.Group.Line -join ', ')" -ForegroundColor Cyan -BackgroundColor Black
-				Write-Info.ps1 " $($message.Name)"
+				Write-Information " Lines: $($message.Group.Line -join ', ')"
+				Write-Information " $($message.Name)"
 			}
 		}
 		if(!$PSCmdlet.ShouldProcess("$name in $Path",'provide justification')) {continue}

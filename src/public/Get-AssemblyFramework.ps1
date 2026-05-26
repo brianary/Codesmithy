@@ -15,7 +15,7 @@ DotNet
 https://stackoverflow.com/questions/3460982/determine-net-framework-version-for-dll#25649840
 
 .EXAMPLE
-Get-AssemblyFramework.ps1 Program.exe
+Get-AssemblyFramework Program.exe
 
 RuntimeVersion CompileVersion
 -------------- --------------

@@ -20,19 +20,18 @@ VSCode
 https://marketplace.visualstudio.com/items?itemName=ms-mssql.mssql
 
 .LINK
-Get-VSCodeSetting.ps1
+Get-VSCodeSetting
 
 .LINK
-Set-VSCodeSetting.ps1
+Set-VSCodeSetting
 
 .EXAMPLE
-Add-VsCodeDatabaseConnection.ps1 ConnectionName ServerName\instance DatabaseName
+Add-VsCodeDatabaseConnection ConnectionName ServerName\instance DatabaseName
 
 Adds an MSSQL extension trusted connection named ConnectionName that
 connects to the server ServerName\instance and database DatabaseName.
 #>
 
-#Requires -Version 3
 [CmdletBinding()][OutputType([void])] Param(
 # The name of the connection.
 [Parameter(Position=0,Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
@@ -54,7 +53,7 @@ If no username is given, a trusted connection will be created.
 )
 Begin
 {
-	[psobject[]]$connections = Get-VSCodeSetting.ps1 /mssql.connections -Workspace
+	[psobject[]]$connections = Get-VSCodeSetting /mssql.connections -Workspace
 	if(!$connections) {[psobject[]]$connections = @()}
 }
 Process
@@ -87,5 +86,5 @@ Process
 End
 {
 	$connections |ConvertTo-Json -Compress |Write-Verbose
-	Set-VSCodeSetting.ps1 /mssql.connections $connections -Workspace
+	Set-VSCodeSetting /mssql.connections $connections -Workspace
 }

@@ -6,16 +6,13 @@ Returns the creation and last modification metadata for a file in a git repo.
 Git and GitHub
 
 .LINK
-Use-Command.ps1
-
-.LINK
 Get-ChildItem
 
 .LINK
 Resolve-Path
 
 .EXAMPLE
-Get-GitFileMetadata.ps1 README.md
+Get-GitFileMetadata README.md
 
 Path         : .\README.md
 CreateCommit : 1fde7af
@@ -28,7 +25,6 @@ LastEmail    : brianary@example.com
 LastDate     : 12/07/2020 20:17:15
 #>
 
-#Requires -Version 3
 [CmdletBinding()][OutputType([psobject])] Param(
 # The path (or paths) to get metadata for.
 [Parameter(Position=0,Mandatory=$true,ValueFromPipelineByPropertyName=$true,ValueFromRemainingArguments=$true)]
@@ -36,7 +32,10 @@ LastDate     : 12/07/2020 20:17:15
 # Recurse into subdirectories.
 [switch] $Recurse
 )
-Begin { Use-Command.ps1 git "$env:ProgramFiles\Git\cmd\git.exe" -choco git }
+Begin
+{
+	if(!(Get-Command git -Type Application -ErrorAction Ignore)) {throw "Git is required to be installed!"}
+}
 Process
 {
 	foreach($f in Get-ChildItem $Path -Recurse:$Recurse)

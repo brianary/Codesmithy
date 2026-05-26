@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Copies configured issue labels from one repo to another.
 
@@ -23,14 +23,12 @@ Set-GitHubLabel
 Remove-GitHubLabel
 
 .EXAMPLE
-Copy-GitHubLabels.ps1 -OwnerName brianary -RepositoryName scripts -DestinationRepositoryName webcoder
+Copy-GitHubLabels -OwnerName brianary -RepositoryName scripts -DestinationRepositoryName webcoder
 
 Inserts new labels from the brianary/scripts repo to the brianary/webcoder repo, and also
 updates attributes like description and color from matching labels in the source.
 #>
 
-#Requires -Version 7
-#Requires -Modules PowerShellForGitHub
 [CmdletBinding()] Param(
 # The source repository's owner name.
 [Parameter(Position=0,Mandatory=$true)][string] $OwnerName,

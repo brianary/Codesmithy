@@ -15,22 +15,18 @@ http://code.visualstudio.com/
 https://git-scm.com/docs/git-rev-parse
 
 .LINK
-Add-VsCodeDatabaseConnection.ps1
+Add-VsCodeDatabaseConnection
 
 .LINK
-Get-ConfigConnectionStringBuilders.ps1
-
-.LINK
-Import-Variables.ps1
+Get-ConfigConnectionStringBuilders
 
 .EXAMPLE
-Import-VsCodeDatabaseConnections.ps1
+Import-VsCodeDatabaseConnections
 
 Adds any new (by name) connection strings found in XDT .config files into
 the .vscode/settings.json mssql.connections collection for the mssql extension.
 #>
 
-#Requires -Version 3
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns','',
 Justification='All configurations are returned as a collection.')]
 [CmdletBinding()][OutputType([void])] Param()
@@ -40,10 +36,12 @@ function Get-ConfigConnections
 	$connections = @()
 	foreach($config in (Get-ChildItem -Recurse -Filter *.config |Select-Object -ExpandProperty FullName))
 	{
+		#TODO: Add or replace dependency.
 		foreach($cs in (Get-ConfigConnectionStringBuilders.ps1 $config))
 		{
 			$name = $cs.Name + '.' + ($config |Split-Path -LeafBase |Split-Path -Extension).Trim('.')
 			if($connections -and $name -in $connections.profileName){Write-Verbose "A '$name' connection already exists."; continue}
+			#TODO: Add or replace dependency.
 			Import-Variables.ps1 $cs.ConnectionString
 			$vsconn = @{
 				ProfileName = $name
@@ -61,4 +59,4 @@ function Get-ConfigConnections
 
 $connections = Get-ConfigConnections
 if(!$connections){Write-Verbose 'Nothing to do.'}
-else{$connections |Add-VsCodeDatabaseConnection.ps1}
+else{$connections |Add-VsCodeDatabaseConnection}

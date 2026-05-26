@@ -11,16 +11,12 @@ https://docs.github.com/en/github/administering-a-repository/managing-branches-i
 .LINK
 https://github.com/github/renaming
 
-.LINK
-Use-Command.ps1
-
 .EXAMPLE
-Rename-GitHubLocalBranch.ps1 main
+Rename-GitHubLocalBranch main
 
 Rename the current branch to "main".
 #>
 
-#Requires -Version 3
 [CmdletBinding(ConfirmImpact='High',SupportsShouldProcess=$true)] Param(
 # The new branch name.
 [Parameter(Position=0,Mandatory=$true)][string] $NewName
@@ -28,7 +24,7 @@ Rename the current branch to "main".
 
 if(!$PSCmdlet.ShouldContinue('Have you renamed the branch in the GitHub UI?','GitHub Status'))
 {
-	Write-Info.ps1 'Rename the branch via the GitHub UI before running this script.'
+	Write-Information 'Rename the branch via the GitHub UI before running this script.'
 	if((Get-Command gh -CommandType Application -ErrorAction Ignore)) {gh browse}
 	Start-Process 'https://docs.github.com/en/github/administering-a-repository/managing-branches-in-your-repository/renaming-a-branch#renaming-a-branch'
 	return
@@ -37,7 +33,7 @@ if(!$PSCmdlet.ShouldContinue('Have you renamed the branch in the GitHub UI?','Gi
 $oldName = git rev-parse --abbrev-ref HEAD
 if(!$PSCmdlet.ShouldProcess("$oldName branch","rename to $NewName")) {return}
 
-Use-Command.ps1 git "$env:ProgramFiles\Git\cmd\git.exe" -choco git
+if(!(Get-Command git -Type Application -ErrorAction Ignore)) {throw "Git is required to be installed!"}
 Write-Verbose "git branch -m $oldName $NewName"
 git branch -m $oldName $NewName
 Write-Verbose "git fetch origin"

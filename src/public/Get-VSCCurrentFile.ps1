@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Returns the path of the current file open in VSCode, when run in the PowerShell Extension Terminal in VSCode.
 
@@ -15,12 +15,10 @@ https://github.com/PowerShell/PowerShellEditorServices
 https://marketplace.visualstudio.com/items?itemName=ms-vscode.PowerShell
 
 .EXAMPLE
-Get-VSCCurrentFile.ps1
+Get-VSCCurrentFile
 
-C:\GitHub\scripts\Get-VSCCurrentFile.ps1
+C:\GitHub\scripts\Get-VSCCurrentFile
 #>
 
-#Requires -Version 7
-#Requires -Modules PowerShellEditorServices.Commands
 [CmdletBinding()][OutputType([string])] Param()
 $psEditor.GetEditorContext().CurrentFile.Path

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Extracts a JSON schema from an OpenAPI definition.
 

@@ -12,7 +12,7 @@ Configuration
 https://docs.myget.org/docs/how-to/nuget-configuration-inheritance
 
 .EXAMPLE
-Get-NuGetConfigs.ps1
+Get-NuGetConfigs
 
 C:\Users\zaphodb\GitHub\ProjectX\src\nuget.config
 C:\Users\zaphodb\AppData\Roaming\NuGet\NuGet.config
@@ -20,7 +20,6 @@ C:\ProgramData\NuGet\Config.config
 C:\ProgramData\NuGet\NuGetDefaults.config
 #>
 
-#Requires -Version 7
 [CmdletBinding()][OutputType([string])] Param(
 # The directory to walk the parents of, to look for configs.
 [Parameter(Position=0)][string] $Directory = "$PWD"

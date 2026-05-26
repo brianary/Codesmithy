@@ -9,23 +9,20 @@ VSCode
 https://code.visualstudio.com/docs/getstarted/settings
 
 .LINK
-Get-VSCodeSettingsFile.ps1
-
-.LINK
-Set-Json.ps1
+Get-VSCodeSettingsFile
 
 .EXAMPLE
-Set-VSCodeSetting.ps1 git.autofetch $true -Workspace
+Set-VSCodeSetting git.autofetch $true -Workspace
 
 Sets {"git.autofetch": true} in the VSCode user settings.
 
 .EXAMPLE
-Set-VSCodeSetting.ps1 /powershell.codeFormatting.preset Allman -Workspace
+Set-VSCodeSetting /powershell.codeFormatting.preset Allman -Workspace
 
 Sets {"powershell.codeFormatting.preset": "Allman"} in the VSCode workspace settings.
 
 .EXAMPLE
-Set-VSCodeSetting.ps1 /workbench.colorTheme 'PowerShell ISE' -Workspace
+Set-VSCodeSetting /workbench.colorTheme 'PowerShell ISE' -Workspace
 
 Sets {"workbench.colorTheme": "PowerShell ISE"} in the VSCode workspace settings.
 #>
@@ -44,10 +41,11 @@ element name with a /, and literal / is escaped as ~1, and literal ~ is escaped 
 [switch] $Workspace
 )
 
-${settings.json} = Get-VSCodeSettingsFile.ps1 -Workspace:$Workspace
+${settings.json} = Get-VSCodeSettingsFile -Workspace:$Workspace
 
 if(!(${settings.json} |Split-Path |Test-Path -PathType Container)) {mkdir (${settings.json} |Split-Path) |Out-Null}
 if(!(Test-Path ${settings.json} -PathType Leaf)) {'{}' |Out-File ${settings.json} -Encoding utf8}
 
 $settings = Get-Content ${settings.json} -Raw
+#TODO: Add or replace dependency.
 $settings |Set-Json.ps1 $JsonPointer $Value -WarnOverwrite |Out-File ${settings.json} -Encoding utf8

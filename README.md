@@ -32,7 +32,6 @@ Utilities for .NET programmers.
 - [Get-VSCodeSetting](https://github.com/brianary/Codesmithy/wiki/Get-VSCodeSetting): Sets a VSCode setting.
 - [Get-VSCodeSettingsFile](https://github.com/brianary/Codesmithy/wiki/Get-VSCodeSettingsFile): Gets the path of the VSCode settings.config file.
 - [Import-VsCodeDatabaseConnections](https://github.com/brianary/Codesmithy/wiki/Import-VsCodeDatabaseConnections): Adds config XDT connection strings to VSCode settings.
-- [Initialize-DatabaseNotebook](https://github.com/brianary/Codesmithy/wiki/Initialize-DatabaseNotebook): Populates a new notebook with details about a database.
 - [New-Jwt](https://github.com/brianary/Codesmithy/wiki/New-Jwt): Generates a JSON Web Token (JWT)
 - [Push-WorkspaceLocation](https://github.com/brianary/Codesmithy/wiki/Push-WorkspaceLocation): Pushes the current VS Code editor workspace location to the location stack.
 - [Rename-GitHubLocalBranch](https://github.com/brianary/Codesmithy/wiki/Rename-GitHubLocalBranch): Rename a git repository branch.

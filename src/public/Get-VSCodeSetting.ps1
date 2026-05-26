@@ -12,7 +12,7 @@ VSCode
 https://code.visualstudio.com/docs/getstarted/settings
 
 .LINK
-Get-VSCodeSettingsFile.ps1
+Get-VSCodeSettingsFile
 
 .LINK
 ConvertFrom-Json
@@ -21,17 +21,17 @@ ConvertFrom-Json
 Get-Content
 
 .EXAMPLE
-Get-VSCodeSetting.ps1 /editor.renderWhitespace
+Get-VSCodeSetting /editor.renderWhitespace
 
 all
 
 .EXAMPLE
-Get-VSCodeSetting.ps1 /powershell.codeFormatting.preset -Workspace
+Get-VSCodeSetting /powershell.codeFormatting.preset -Workspace
 
 Allman
 
 .EXAMPLE
-Get-VSCodeSetting.ps1 /prettier.disableLanguages -Workspace
+Get-VSCodeSetting /prettier.disableLanguages -Workspace
 
 markdown
 #>
@@ -43,11 +43,12 @@ The full path name of the property to set, as a JSON Pointer, which separates ea
 element name with a /, and literal / is escaped as ~1, and literal ~ is escaped as ~0.
 #>
 [Parameter(Position=0,Mandatory=$true)][Alias('Name')][AllowEmptyString()][ValidatePattern('\A(?:|/(?:[^~]|~0|~1)*)\z')]
-[string] $JsonPointer = '',
+[string] $JsonPointer,
 # Indicates that the current workspace settings should be
 [switch] $Workspace
 )
 
-${settings.json} = Get-VSCodeSettingsFile.ps1 -Workspace:$Workspace
+${settings.json} = Get-VSCodeSettingsFile -Workspace:$Workspace
 if(!(Test-Path ${settings.json} -Type Leaf)) {return $null}
+#TODO: Add or replace dependency.
 return Select-Json.ps1 $JsonPointer -Path ${settings.json}

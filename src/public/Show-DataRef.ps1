@@ -6,18 +6,18 @@ Display an HTML view of an XML schema or WSDL using Saxon.
 XML
 
 .EXAMPLE
-Show-DataRef.ps1 DataModel.xsd
+Show-DataRef DataModel.xsd
 
 (Renders the XML schema as HTML.)
 #>
 
-#Requires -Version 3
 [CmdletBinding()][OutputType([void])] Param(
 # System.String containing the path to an XML Schema or WSDL file.
 [Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true)][string]$SchemaFile
 )
 Begin
 {
+	#TODO: Add or replace dependency.
     Use-Command.ps1 saxon $env:ProgramFiles\Saxonica\Saxon*\bin\Transform.exe -nupkg saxon-he `
         -InstallDir $env:ProgramFiles\Saxonica
 }

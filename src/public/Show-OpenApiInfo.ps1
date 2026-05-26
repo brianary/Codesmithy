@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Displays metadata from an OpenAPI definition.
 

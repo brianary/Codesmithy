@@ -31,31 +31,20 @@ http://editorconfig.org/
 https://github.com/brianary/Detextive/
 
 .LINK
-Get-VSCodeSetting.ps1
+Get-VSCodeSetting
 
 .LINK
-Set-VSCodeSetting.ps1
+Set-VSCodeSetting
 
 .LINK
-Add-CapturesToMatches.ps1
-
-.LINK
-Measure-StandardDeviation.ps1
-
-.LINK
-Test-FileTypeMagicNumber.ps1
-
-.LINK
-Use-Command.ps1
+Use-Command
 
 .EXAMPLE
-Add-GitHubMetadata.ps1 -DefaultOwner arthurd@example.com -DefaultUsesTabs
+Add-GitHubMetadata -DefaultOwner arthurd@example.com -DefaultUsesTabs
 
 Sets up the CODEOWNERS file and assigns a user, and sets the indent default.
 #>
 
-#Requires -Version 3
-#Requires -Modules Detextive
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns','',
 Justification='These plural nouns work with groups.')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter','',
@@ -199,7 +188,8 @@ function Copy-GitHubFile
 
 function Add-GitHubDirectory
 {
-	if(!(Test-Path .github -PathType Container)) {mkdir .github |Out-Null}
+	[CmdletBinding()] Param()
+	if(!(Test-Path .github -PathType Container)) {New-Item .github -Type Directory |Out-Null}
 }
 
 function Add-File
@@ -221,8 +211,12 @@ function Add-File
 	Write-Verbose "Added $Filename"
 }
 
-function Add-Readme([string] $name = (git rev-parse --show-toplevel |Split-Path -Leaf), [switch] $NoWarnings)
+function Add-Readme
 {
+	[CmdletBinding()] Param(
+	[string] $name = (git rev-parse --show-toplevel |Split-Path -Leaf),
+	[switch] $NoWarnings
+	)
 	if(Test-Path README.md -PathType Leaf){return}
 	Add-File README.md @"
 $name
@@ -239,14 +233,17 @@ TODO: Add sections for additional details, special instructions, prerequisites, 
 
 function Add-CodeOwners
 {
-	Param(
+	[CmdletBinding()] Param(
 	[string[]] $DefaultOwner,
 	[hashtable] $Owners,
 	[switch] $NoWarnings
 	)
 	if(Test-KeepFile .github/CODEOWNERS -Keep:(!$DefaultOwner -and !$Owners))
 	{
-		if(Test-FileTypeMagicNumber.ps1 utf8 .github/CODEOWNERS){Remove-Utf8Signature .github/CODEOWNERS}
+		if('EFBBBF' -eq ('{0:X2}{1:X2}{2:X2}' -f (Get-Content .github/CODEOWNERS -AsByteStream -TotalCount 3)))
+		{
+			(Get-Content .github/CODEOWNERS -Raw).Trim() |Out-File .github/CODEOWNERS -Encoding utf8NoBOM
+		}
 		return
 	}
 	if(!$DefaultOwner)
@@ -254,10 +251,14 @@ function Add-CodeOwners
 		Write-Verbose 'Determining default code owner(s).'
 		$authors = git shortlog -nes HEAD |
 			Select-String '^\s*(?<Commits>\d+)\s+(?<Name>\b[^>]+\b)\s+<(?<Email>[^>]+)>$' |
-			Add-CapturesToMatches.ps1
+			ForEach-Object {[pscustomobject]@{
+				Commits = $_.Matches.Groups[1].Value
+				Name    = $_.Matches.Groups[2].Value
+				Email   = $_.Matches.Groups[3].Value
+			}}
 		$authors |Out-String |Write-Verbose
 		[int] $max = ($authors |Measure-Object Commits -Maximum).Maximum
-		[int] $oneSigmaFromTop = $max - ($authors.Commits |Measure-StandardDeviation.ps1)
+		[int] $oneSigmaFromTop = $max - ($authors.Commits |Measure-Object -StandardDeviation).StandardDeviation
 		Write-Verbose "Authors with $oneSigmaFromTop or more commits will be included as default code owners."
 		$DefaultOwner = $authors |Where-Object {[int] $_.Commits -ge $oneSigmaFromTop} |Select-Object -ExpandProperty Email
 		Write-Verbose "Default code owners determined to be $DefaultOwner."
@@ -290,7 +291,10 @@ function Add-LinguistOverrides
 	}
 	else
 	{
-		if(Test-FileTypeMagicNumber.ps1 utf8 .gitattributes){Remove-Utf8Signature .gitattributes}
+		if('EFBBBF' -eq ('{0:X2}{1:X2}{2:X2}' -f (Get-Content .gitattributes -AsByteStream -TotalCount 3)))
+		{
+			(Get-Content .github/CODEOWNERS -Raw).Trim() |Out-File .gitattributes -Encoding utf8NoBOM
+		}
 		if(Select-String '^# Linguist overrides' .gitattributes)
 		{
 			Select-String '^# Linguist overrides|\blinguist-\w+' .gitattributes |Out-String |Write-Verbose
@@ -314,33 +318,45 @@ function Add-LinguistOverrides
 	Select-String '^# Linguist overrides|\blinguist-\w+' .gitattributes |Out-String |Write-Verbose
 }
 
-function Add-IssueTemplate([string] $IssueTemplate)
+function Add-IssueTemplate
 {
+	[CmdletBinding()] Param(
+	[string] $IssueTemplate
+	)
 	if(!$IssueTemplate){Write-Verbose 'No issue template.'; return}
 	Add-File .github/ISSUE_TEMPLATE.md $IssueTemplate
 }
 
-function Add-PullRequestTemplate([string] $PullRequestTemplate)
+function Add-PullRequestTemplate
 {
+	[CmdletBinding()] Param(
+	[string] $PullRequestTemplate
+	)
 	if(!$PullRequestTemplate){Write-Verbose 'No pull request template.'; return}
 	Add-File .github/PULL_REQUEST_TEMPLATE.md $PullRequestTemplate
 }
 
-function Add-ContributingGuidelines([string] $ContributingFile)
+function Add-ContributingGuidelines
 {
+	[CmdletBinding()] Param(
+	[string] $ContributingFile
+	)
 	if(!$ContributingFile){Write-Verbose 'No contributing file.'; return}
 	Copy-GitHubFile .github/CONTRIBUTING.md $ContributingFile
 }
 
-function Add-License([string] $LicenseFile)
+function Add-License
 {
+	[CmdletBinding()] Param(
+	[string] $LicenseFile
+	)
 	if(!$LicenseFile){Write-Verbose 'No license.'; return}
 	Copy-GitHubFile LICENSE.md $LicenseFile
 }
 
 function Add-EditorConfig
 {
-	Param(
+	[CmdletBinding()] Param(
 	[string] $DefaultCharset,
 	[string] $DefaultLineEndings,
 	[int] $DefaultIndentSize,
@@ -379,9 +395,10 @@ charset = utf-8
 
 function Add-VsCodeExtensionRecommendations
 {
-	if(!(Test-Path .vscode -PathType Container)) {mkdir .vscode |Out-Null}
+	[CmdletBinding()] Param()
+	if(!(Test-Path .vscode -PathType Container)) {New-Item .vscode -Type Directory |Out-Null}
 	$recommendations = New-Object Collections.Generic.HashSet[string]
-	[string[]] $previous = Get-VSCodeSetting.ps1 /recommendations -Workspace
+	[string[]] $previous = Get-VSCodeSetting /recommendations -Workspace
 	if($previous) {$previous |ForEach-Object {[void]$recommendations.Add($_)}}
 	if((Test-Path .github -Type Container) -and (Test-Path .github/workflows -Type Container) -and
 		(Get-ChildItem .github/workflows -Filter *.yml |Select-Object -First 1))
@@ -411,11 +428,12 @@ function Add-VsCodeExtensionRecommendations
 	{
 		[void]$recommendations.Add('ms-mssql.mssql')
 	}
-	Set-VSCodeSetting.ps1 /recommendations $recommendations -Workspace
+	Set-VSCodeSetting /recommendations $recommendations -Workspace
 }
 
 function Add-DevContainerSettings
 {
+	[CmdletBinding()] Param()
 	if(Test-Path .devcontainer/devcontainer.json -Type Leaf)
 	{
 		${devcontainer.json} = '.devcontainer/devcontainer.json'
@@ -483,16 +501,17 @@ function Add-DevContainerSettings
 
 function Disable-VsCodePrettier
 {
-	if(!(Test-Path .vscode -PathType Container)) {mkdir .vscode |Out-Null}
-	Set-VSCodeSetting.ps1 /prettier.disableLanguages @('markdown') -Workspace
-	Set-VSCodeSetting.ps1 '/[markdown]' @{
+	[CmdletBinding()] Param()
+	if(!(Test-Path .vscode -PathType Container)) {New-Item .vscode -Type Directory |Out-Null}
+	Set-VSCodeSetting /prettier.disableLanguages @('markdown') -Workspace
+	Set-VSCodeSetting '/[markdown]' @{
 		'editor.defaultFormatter' = 'yzhang.markdown-all-in-one'
 	} -Workspace
 }
 
 function Add-Metadata
 {
-	Param(
+	[CmdletBinding()] Param(
 	[string[]] $DefaultOwner,
 	[hashtable] $Owners,
 	[string[]] $VendorCode,
@@ -511,7 +530,7 @@ function Add-Metadata
 	[switch] $NoWarnings,
 	[switch] $Force
 	)
-	Use-Command.ps1 git "$env:ProgramFiles\Git\cmd\git.exe" -choco git
+	if(!(Get-Command git -Type Application -ErrorAction Ignore)) {throw "Git is required to be installed!"}
 	Push-Location $(git rev-parse --show-toplevel)
 	Add-GitHubDirectory
 	Add-Readme -NoWarnings:$NoWarnings

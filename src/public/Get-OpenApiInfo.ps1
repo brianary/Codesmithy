@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Returns metadata from an OpenAPI definition.
 
@@ -9,7 +9,7 @@ Json
 https://www.openapis.org/
 
 .EXAMPLE
-Get-OpenApiInfo.ps1 .\test\data\sample-openapi.json
+Get-OpenApiInfo .\test\data\sample-openapi.json
 
 Source      : .\test\data\sample-openapi.json
 OpenApi     : 3.0.3
@@ -20,7 +20,6 @@ Endpoints   : {@{Endpoint=GET /users/{userId}; Summary=Returns a user by ID.; De
 |             @{Endpoint=POST /users; Summary=Creates a new user.; Description=Adds a user account.}}
 #>
 
-#Requires -Version 7
 [CmdletBinding()] Param(
 [Parameter(Position=0,Mandatory=$true,ValueFromPipelineByPropertyName=$true)][Alias('FullName')][string] $Path
 )

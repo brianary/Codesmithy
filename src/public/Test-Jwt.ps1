@@ -12,12 +12,11 @@ System.Boolean indicating that the string can be parsed as a URI.
 Data formats
 
 .EXAMPLE
-Test-Jwt.ps1 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOjE1MTYyMzkwMjIsInN1YiI6IjEyMzQ1Njc4OTAifQ.-zAn1et1mf6QHakJbOTt5-p4gv33R7cIikKy8-9aiNs' (ConvertTo-SecureString swordfish -AsPlainText -Force)
+Test-Jwt 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOjE1MTYyMzkwMjIsInN1YiI6IjEyMzQ1Njc4OTAifQ.-zAn1et1mf6QHakJbOTt5-p4gv33R7cIikKy8-9aiNs' (ConvertTo-SecureString swordfish -AsPlainText -Force)
 
 True
 #>
 
-#Requires -Version 3
 [CmdletBinding()][OutputType([bool])] Param(
 # The string to test.
 [Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true)][AllowEmptyString()][AllowNull()][string] $InputObject,
@@ -29,6 +28,7 @@ Process
     if(!$InputObject) {Write-Verbose 'No JWT input'; return $false}
     if(!$InputObject.Contains([char]'.')) {Write-Verbose 'JWT is missing a dot'; return $false}
     $head64,$body64,$sign64 = $InputObject -split '\.'
+	#TODO: Add or replace dependency.
     $head = ConvertFrom-Base64.ps1 $head64 utf8 -UriStyle
     Write-Verbose "JWT head: $head"
     if(!(Test-Json $head)) {Write-Verbose 'JWT header does not decode to valid JSON'; return $false}

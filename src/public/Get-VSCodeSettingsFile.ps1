@@ -23,16 +23,13 @@ Join-Path
 .LINK
 Get-Command
 
-.LINK
-Stop-ThrowError.ps1
-
 .EXAMPLE
-Get-VSCodeSettingsFile.ps1
+Get-VSCodeSettingsFile
 
 C:\Users\zaphodb\AppData\Roaming\Code\User\settings.json
 
 .EXAMPLE
-Get-VSCodeSettingsFile.ps1 -Workspace
+Get-VSCodeSettingsFile -Workspace
 
 C:\Users\zaphodb\GitHub\scripts\.vscode\settings.json
 #>
@@ -45,7 +42,7 @@ C:\Users\zaphodb\GitHub\scripts\.vscode\settings.json
 ${settings.json} =
 	if($Workspace)
 	{
-		Use-Command.ps1 git "$env:ProgramFiles\Git\cmd\git.exe" -choco git
+		if(!(Get-Command git -Type Application -ErrorAction Ignore)) {throw "Git is required to be installed!"}
 		if(Get-Variable psEditor -Scope Global -ErrorAction Ignore)
 		{
 			Join-Path $psEditor.Workspace.Path .vscode/settings.json
@@ -83,8 +80,7 @@ ${settings.json} =
 		}
 		else
 		{
-			Stop-ThrowError.ps1 'Unable to determine location of VSCode settings.json' `
-				-OperationContext "$([environment]::OSVersion)"
+			throw 'Unable to determine location of VSCode settings.json'
 		}
 	}
 Write-Verbose "Using VSCode settings ${settings.json}"
