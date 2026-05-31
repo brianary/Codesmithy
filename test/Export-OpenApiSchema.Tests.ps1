@@ -3,14 +3,10 @@
 Tests extracting a JSON schema from an OpenAPI definition.
 #>
 
-if((Test-Path .changes -Type Leaf) -and
-	!@(Get-Content .changes |Get-Item |Select-Object -ExpandProperty Name |
-		Where-Object {$_.StartsWith("$(($MyInvocation.MyCommand.Name -split '\.',2)[0]).")})) {return}
+if(!(&"$PSScriptRoot/../scripts/Test-RelevantTest.ps1")) {return}
 BeforeAll {
 	Set-StrictMode -Version Latest
-	$module = Get-Item "$PSScriptRoot/../src/.publish/*.psd1"
-	Import-Module $module -Force
-	$datadir = Join-Path $PSScriptRoot 'data'
+	&"$PSScriptRoot/../scripts/Import-ThisModule.ps1"
 }
 Describe 'Export-OpenApiSchema' -Tag Export-OpenApiSchema {
 	Context 'Extracts a JSON schema from an OpenAPI definition' -Tag ExportOpenApiSchema,Export,OpenApi {
@@ -49,5 +45,5 @@ Describe 'Export-OpenApiSchema' -Tag Export-OpenApiSchema {
 	}
 }
 AfterAll {
-	Remove-Module $module.BaseName -Force
+	&"$PSScriptRoot/../scripts/Remove-ThisModule.ps1"
 }

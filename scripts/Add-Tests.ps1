@@ -15,11 +15,11 @@ Begin
 	{
 		[CmdletBinding()] Param()
 		$Script:NL = [Environment]::NewLine
-		$src = Join-Path ($PSScriptRoot |Split-Path) src
-		$Script:ModuleName = Join-Path $src *.psd1 |Resolve-Path |Split-Path -LeafBase
+		$reporoot = $PSScriptRoot |Split-Path # faster than git rev-parse --show-toplevel ?
+		$Script:ModuleName = Join-Path $reporoot src *.psd1 |Resolve-Path |Split-Path -LeafBase
 		if(Get-Module $Script:ModuleName) {Remove-Module $Script:ModuleName}
-		& (Join-Path $PSScriptRoot Build-Module.ps1)
-		Join-Path $src .publish *.psd1 |Resolve-Path |Import-Module
+		& (Join-Path $PSScriptRoot Build-ThisModule.ps1)
+		Join-Path $reporoot .publish *.psd1 |Resolve-Path |Import-Module
 		Write-Debug "Imported commands: $(Get-Command -Module $Script:ModuleName)"
 	}
 
@@ -73,13 +73,10 @@ $('"@')
 Tests $Synopsis
 #>
 
-if((Test-Path .changes -Type Leaf) -and
-	!@(Get-Content .changes |Get-Item |Select-Object -ExpandProperty Name |
-		Where-Object {`$_.StartsWith("`$((`$MyInvocation.MyCommand.Name -split '\.',2)[0]).")})) {return}
+if(!(&"`$PSScriptRoot/../scripts/Test-RelevantTest.ps1")) {return}
 BeforeAll {
 	Set-StrictMode -Version Latest
-	`$module = Join-Path (`$PSScriptRoot |Split-Path) src .publish *.psd1 |Get-Item
-	Import-Module `$module -Force
+	&"`$PSScriptRoot/../scripts/Import-ThisModule.ps1"
 }
 Describe '$Name' -Tag $Name,$($Name -replace '-',',') {
 	Context '$($Synopsis -replace "'","''")' -Tag Example {
@@ -88,7 +85,7 @@ $($Examples.example |Format-ExampleTest)
 $($CmdInfo.ParameterSets |Where-Object Name -ne __AllParameterSets |Format-ParameterSetContext)
 }
 AfterAll {
-	Remove-Module `$module.BaseName -Force
+	&"$PSScriptRoot/../scripts/Remove-ThisModule.ps1"
 }
 "@
 	}

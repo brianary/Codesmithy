@@ -11,13 +11,22 @@ Begin
 	{
 		Install-PSResource PlatyPS -Repository PSGallery -Scope CurrentUser -TrustRepository
 	}
-	Push-Location "$PSScriptRoot/.."
+	$PSScriptRoot |Split-Path |Push-Location
 }
 Process
 {
-	$ModuleName = Get-Item src/*.psd1 |Split-Path -LeafBase
-	& './scripts/Build-Module.ps1'
-	Import-Module (Get-Item src/.publish/*.psd1)
-	New-MarkdownHelp -Module $ModuleName -OutputFolder .github/wiki -ErrorAction Ignore
+	$ModuleName = Join-Path src *.psd1 |Get-Item |Split-Path -LeafBase
+	& (Join-Path scripts Build-ThisModule.ps1)
+	$psd1 = Join-Path .publish *.psd1 |Get-Item
+	& (Join-Path scripts Import-ThisModule.ps1)
+	$manifest = Test-ModuleManifest $psd1.FullName
+	if($manifest.PSObject.Properties.Name -contains 'RequiredModules' -and $manifest.RequiredModules)
+	{
+		$manifest.RequiredModules.Name |ForEach-Object {
+			Install-PSResource $_ -Scope CurrentUser -Repository PSGallery -TrustRepository -wa Ignore
+			Import-Module $_
+		}
+	}
+	New-MarkdownHelp -Module $ModuleName -OutputFolder (Join-Path .github wiki) -ErrorAction Ignore
 }
 Clean {Pop-Location}
