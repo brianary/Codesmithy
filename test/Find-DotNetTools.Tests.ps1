@@ -3,19 +3,12 @@
 Tests searching for matching dotnet tools.
 #>
 
-$basename = "$(($MyInvocation.MyCommand.Name -split '\.',2)[0])."
-$skip = !(Test-Path .changes -Type Leaf) ? $false :
-	!@(Get-Content .changes |Get-Item |Select-Object -ExpandProperty Name |Where-Object {$_.StartsWith($basename)})
 if(!(&"$PSScriptRoot/../scripts/Test-RelevantTest.ps1")) {return}
 BeforeAll {
 	Set-StrictMode -Version Latest
 	&"$PSScriptRoot/../scripts/Import-ThisModule.ps1"
 }
 Describe 'Find-DotNetTools' -Tag Find-DotNetTools -Skip:$skip {
-	BeforeAll {
-		$scriptsdir,$sep = (Split-Path $PSScriptRoot),[io.path]::PathSeparator
-		if($scriptsdir -notin ($env:Path -split $sep)) {$env:Path += "$sep$scriptsdir"}
-	}
 	Context 'Returns a list of matching dotnet tools' -Tag FindDotNetTools,Find,DotNetTools,DotNet {
 		It "Finds .NET Interactive" {
 			Find-DotNetTools.ps1 microsoft.dotnet-interactive |
@@ -26,4 +19,7 @@ Describe 'Find-DotNetTools' -Tag Find-DotNetTools -Skip:$skip {
 			@(Find-DotNetTools.ps1 microsoft).Count |Should -BeGreaterThan 0
 		}
 	}
+}
+AfterAll {
+	&"$PSScriptRoot/../scripts/Remove-ThisModule.ps1"
 }

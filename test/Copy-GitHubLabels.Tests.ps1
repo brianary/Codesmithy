@@ -3,20 +3,13 @@
 Tests copying configured issue labels from one repo to another.
 #>
 
-$basename = "$(($MyInvocation.MyCommand.Name -split '\.',2)[0])."
-$skip = !(Test-Path .changes -Type Leaf) ? $false :
-	!@(Get-Content .changes |Get-Item |Select-Object -ExpandProperty Name |Where-Object {$_.StartsWith($basename)})
 if(!(&"$PSScriptRoot/../scripts/Test-RelevantTest.ps1")) {return}
 BeforeAll {
 	Set-StrictMode -Version Latest
 	&"$PSScriptRoot/../scripts/Import-ThisModule.ps1"
+	#TODO: Figure out PowerShellForGitHub dependency.
 }
 Describe 'Copy-GitHubLabels' -Tag Copy-GitHubLabels -Skip:$skip {
-	BeforeAll {
-		if(!(Get-Module -List PowerShellForGitHub)) {Install-Module PowerShellForGitHub -Force}
-		$scriptsdir,$sep = (Split-Path $PSScriptRoot),[io.path]::PathSeparator
-		if($scriptsdir -notin ($env:Path -split $sep)) {$env:Path += "$sep$scriptsdir"}
-	}
 	Context 'Copies configured issue labels from one repo to another' -Tag CopyGitHubLabels,Copy,GitHubLabels {
 		It "Should add, update, and delete labels as needed by ReplaceAll mode" {
 			Mock Get-GitHubLabel {
@@ -59,4 +52,7 @@ Describe 'Copy-GitHubLabels' -Tag Copy-GitHubLabels -Skip:$skip {
 			}
 		}
 	}
+}
+AfterAll {
+	&"$PSScriptRoot/../scripts/Remove-ThisModule.ps1"
 }

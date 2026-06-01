@@ -3,22 +3,14 @@
 Tests Adds GitHub Linguist overrides to a repo's .gitattributes.
 #>
 
-$basename = "$(($MyInvocation.MyCommand.Name -split '\.',2)[0])."
-$skip = !(Test-Path .changes -Type Leaf) ? $false :
-	!@(Get-Content .changes |Get-Item |Select-Object -ExpandProperty Name |Where-Object {$_.StartsWith($basename)})
 if(!(&"$PSScriptRoot/../scripts/Test-RelevantTest.ps1")) {return}
 BeforeAll {
 	Set-StrictMode -Version Latest
 	&"$PSScriptRoot/../scripts/Import-ThisModule.ps1"
+	if(!(git config --global user.email)) {git config --global user.email "test@example.com"}
+	if(!(git config --global user.name)) {git config --global user.name "Test User"}
 }
 Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata -Skip:$skip {
-	BeforeAll {
-		if(!(Get-Module -List Detextive)) {Install-Module Detextive -Force}
-		$scriptsdir,$sep = (Split-Path $PSScriptRoot),[io.path]::PathSeparator
-		if($scriptsdir -notin ($env:Path -split $sep)) {$env:Path += "$sep$scriptsdir"}
-		if(!(git config --global user.email)) {git config --global user.email "test@example.com"}
-		if(!(git config --global user.name)) {git config --global user.name "Test User"}
-	}
 	BeforeEach {
 		Push-Location (mkdir "TestDrive:\$(New-Guid)")
 		git init |Write-Information -infa Continue
@@ -38,7 +30,7 @@ Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata -Skip:$skip {
 			'.editorconfig' |Should -Not -Exist -Because 'a new repo should not have an .editorconfig'
 			'.github\CODEOWNERS' |Should -Not -Exist -Because 'a new repo should not have a CODEOWNERS'
 			'README.md' |Should -Not -Exist -Because 'a new repo should not have a readme'
-			Add-GitHubMetadata.ps1 -DefaultOwner 'test@example.com' -NoWarnings
+			Add-GitHubMetadata -DefaultOwner 'test@example.com' -NoWarnings
 			'.gitattributes' |Should -Exist
 			'.gitattributes' |Should -FileContentMatchExactly '\*\*/packages/\*\* linguist-vendored' `
 				-Because 'default Linguist settings should be added'
@@ -54,7 +46,7 @@ Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata -Skip:$skip {
 	}
 	Context 'Set Linguist rules' -Tag AddGitHubMetadata,Add,GitHubMetadata,GitHub,Metadata,Linguist {
 		It "Should set Linguist rules in .gitattributes" -Tag Linguist {
-			Add-GitHubMetadata.ps1 -VendorCode openapi/*.cs -DocumentationCode docs/* `
+			Add-GitHubMetadata -VendorCode openapi/*.cs -DocumentationCode docs/* `
 				-GeneratedCode *.svg -NoWarnings
 			'.gitattributes' |Should -FileContentMatchExactly '^openapi/\*\.cs linguist-vendored$'
 			'.gitattributes' |Should -FileContentMatchExactly '^docs/\* linguist-documentation$'
@@ -63,7 +55,7 @@ Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata -Skip:$skip {
 	}
 	Context 'Set .editorconfig rules' -Tag AddGitHubMetadata,Add,GitHubMetadata,GitHub,Metadata,EditorConfig {
 		It "Should set .editorconfig rules" {
-			Add-GitHubMetadata.ps1 -DefaultUsesTabs -DefaultIndentSize 6 -DefaultLineEndings cr `
+			Add-GitHubMetadata -DefaultUsesTabs -DefaultIndentSize 6 -DefaultLineEndings cr `
 				-DefaultCharset latin1 -DefaultKeepTrailingSpace -DefaultNoFinalNewLine -NoWarnings
 			'.editorconfig' |Should -FileContentMatchExactly '^indent_style\s*=\s*tab$'
 			'.editorconfig' |Should -FileContentMatchExactly '^indent_size\s*=\s*6$'
@@ -76,7 +68,7 @@ Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata -Skip:$skip {
 	}
 	Context 'Set CODEOWNERS' -Tag AddGitHubMetadata,Add,GitHubMetadata,GitHub,Metadata,CodeOwners {
 		It "Should set specific CODEOWNERS by pattern" {
-			Add-GitHubMetadata.ps1 -DefaultOwner zaphodb@example.com -Owners @{
+			Add-GitHubMetadata -DefaultOwner zaphodb@example.com -Owners @{
 				'sql/*'  = 'eddie@example.com','marvin@example.com'
 				'docs/*' = 'fordp@example.com'
 			} -NoWarnings
@@ -89,13 +81,13 @@ Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata -Skip:$skip {
 		It "Should set issue template" -Skip:$([bool](Get-Variable psEditor -EA Ignore)) {
 			'.github\ISSUE_TEMPLATE.md' |Should -Not -Exist -Because 'a new repo should not have a ISSUE_TEMPLATE.md'
 			$content = 'Thanks for submitting an issue'
-			Add-GitHubMetadata.ps1 -IssueTemplate $content -NoWarnings
+			Add-GitHubMetadata -IssueTemplate $content -NoWarnings
 			'.github\ISSUE_TEMPLATE.md' |Should -FileContentMatchMultilineExactly "\A$([regex]::Escape($content))\r?\Z"
 		}
 		It "Should set pull request template" -Skip:$([bool](Get-Variable psEditor -EA Ignore)) {
 			'.github\PULL_REQUEST_TEMPLATE.md' |Should -Not -Exist -Because 'a new repo should not have a PULL_REQUEST_TEMPLATE.md'
 			$content = 'Thanks for submitting a pull request'
-			Add-GitHubMetadata.ps1 -PullRequestTemplate $content -NoWarnings
+			Add-GitHubMetadata -PullRequestTemplate $content -NoWarnings
 			'.github\PULL_REQUEST_TEMPLATE.md' |Should -FileContentMatchMultilineExactly "\A$([regex]::Escape($content))\r?\Z"
 		}
 		It "Should set contributing guidelines" -Skip:$([bool](Get-Variable psEditor -EA Ignore)) {`
@@ -103,19 +95,19 @@ Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata -Skip:$skip {
 			$content,$file = 'Thanks for your interest in contributing, here are the guidelines for the project',
 				[io.path]::GetTempFileName()
 			$content |Out-File $file utf8BOM
-			Add-GitHubMetadata.ps1 -ContributingFile $file -NoWarnings
+			Add-GitHubMetadata -ContributingFile $file -NoWarnings
 			'.github\CONTRIBUTING.md' |Should -FileContentMatchMultilineExactly "\A$([regex]::Escape($content))\r?\Z"
 		}
 		It "Should set license" -Skip:$([bool](Get-Variable psEditor -EA Ignore)) {
 			'LICENSE.md' |Should -Not -Exist -Because 'a new repo should not have a LICENSE.md'
 			$content,$file = 'Thanks for using this project, here are the terms of use',[io.path]::GetTempFileName()
 			$content |Out-File $file utf8BOM
-			Add-GitHubMetadata.ps1 -LicenseFile $file -NoWarnings
+			Add-GitHubMetadata -LicenseFile $file -NoWarnings
 			'LICENSE.md' |Should -FileContentMatchMultilineExactly "\A$([regex]::Escape($content))\r?\Z"
 		}
 		It "Should set VSCode extension recommendations" -Skip:$([bool](Get-Variable psEditor -EA Ignore)) {
 			'.vscode\settings.json' |Should -Not -Exist -Because 'a new repo should not have VSCode settings'
-			Add-GitHubMetadata.ps1 -VsCodeExtensionRecommendations
+			Add-GitHubMetadata -VsCodeExtensionRecommendations
 			'.vscode\settings.json' |Should -Exist
 			$settings = Get-Content '.vscode\settings.json' -Raw |
 				ConvertFrom-Json
@@ -126,7 +118,7 @@ Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata -Skip:$skip {
 		}
 		It "Should set VSCode Prettier disable" -Skip:$([bool](Get-Variable psEditor -EA Ignore)) {
 			'.vscode\settings.json' |Should -Not -Exist -Because 'a new repo should not have VSCode settings'
-			Add-GitHubMetadata.ps1 -VSCodeDisablePrettierForMarkdown
+			Add-GitHubMetadata -VSCodeDisablePrettierForMarkdown
 			'.vscode\settings.json' |Should -Exist
 			$settings = Get-Content '.vscode\settings.json' -Raw |
 				ConvertFrom-Json
@@ -136,4 +128,7 @@ Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata -Skip:$skip {
 			$settings.'[markdown]'.'editor.defaultFormatter' |Should -BeExactly 'yzhang.markdown-all-in-one'
 		}
 	}
+}
+AfterAll {
+	&"$PSScriptRoot/../scripts/Remove-ThisModule.ps1"
 }
