@@ -9,7 +9,7 @@ BeforeAll {
 	&"$PSScriptRoot/../scripts/Import-ThisModule.ps1"
 	#TODO: Figure out PowerShellForGitHub dependency.
 }
-Describe 'Copy-GitHubLabels' -Tag Copy-GitHubLabels -Skip:$skip {
+Describe 'Copy-GitHubLabels' -Tag Copy-GitHubLabels {
 	Context 'Copies configured issue labels from one repo to another' -Tag CopyGitHubLabels,Copy,GitHubLabels {
 		It "Should add, update, and delete labels as needed by ReplaceAll mode" {
 			Mock Get-GitHubLabel {

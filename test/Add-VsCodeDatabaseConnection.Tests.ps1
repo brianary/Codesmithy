@@ -10,7 +10,7 @@ BeforeAll {
 	if(!(git config --global user.email)) {git config --global user.email "test@example.com"}
 	if(!(git config --global user.name)) {git config --global user.name "Test User"}
 }
-Describe 'Add-VsCodeDatabaseConnection' -Tag Add-VsCodeDatabaseConnection -Skip:$skip {
+Describe 'Add-VsCodeDatabaseConnection' -Tag Add-VsCodeDatabaseConnection {
 	BeforeEach {
 		Push-Location (mkdir "TestDrive:\$(New-Guid)")
 		git init |Write-Information -infa Continue

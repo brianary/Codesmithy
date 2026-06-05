@@ -11,7 +11,7 @@ BeforeAll {
 	try {[void][Kernel]}
 	catch {Add-Type -TypeDefinition (Get-Content $mockfile -Raw)}
 }
-Describe 'Add-NotebookCell' -Tag Add-NotebookCell -Skip:$skip {
+Describe 'Add-NotebookCell' -Tag Add-NotebookCell {
 	Context 'When run within a Polyglot Notebook, appends a cell to it' -Tag AddNoteboodCell,Add,NotebookCell,Notebook {
 		It "Adding language '<Language>' code '<Code>' should happen" -TestCases @(
 			@{ Language = 'sql'; Code = "select * from products;" }

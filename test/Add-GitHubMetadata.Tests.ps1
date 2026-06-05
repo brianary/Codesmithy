@@ -10,7 +10,7 @@ BeforeAll {
 	if(!(git config --global user.email)) {git config --global user.email "test@example.com"}
 	if(!(git config --global user.name)) {git config --global user.name "Test User"}
 }
-Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata -Skip:$skip {
+Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata {
 	BeforeEach {
 		Push-Location (mkdir "TestDrive:\$(New-Guid)")
 		git init |Write-Information -infa Continue

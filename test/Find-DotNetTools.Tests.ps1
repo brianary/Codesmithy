@@ -8,15 +8,15 @@ BeforeAll {
 	Set-StrictMode -Version Latest
 	&"$PSScriptRoot/../scripts/Import-ThisModule.ps1"
 }
-Describe 'Find-DotNetTools' -Tag Find-DotNetTools -Skip:$skip {
+Describe 'Find-DotNetTools' -Tag Find-DotNetTools {
 	Context 'Returns a list of matching dotnet tools' -Tag FindDotNetTools,Find,DotNetTools,DotNet {
 		It "Finds .NET Interactive" {
-			Find-DotNetTools.ps1 microsoft.dotnet-interactive |
+			Find-DotNetTools microsoft.dotnet-interactive |
 				Select-Object -First 1 -ExpandProperty PackageName |
 				Should -BeExactly microsoft.dotnet-interactive
 		}
 		It "Finds Microsoft packages" {
-			@(Find-DotNetTools.ps1 microsoft).Count |Should -BeGreaterThan 0
+			@(Find-DotNetTools microsoft).Count |Should -BeGreaterThan 0
 		}
 	}
 }
