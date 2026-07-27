@@ -11,7 +11,8 @@ BeforeAll {
 Describe 'Export-OpenApiSchema' -Tag Export-OpenApiSchema {
 	Context 'Extracts a JSON schema from an OpenAPI definition' -Tag ExportOpenApiSchema,Export,OpenApi {
 		It "Exports the response schema from sample schema" {
-			Export-OpenApiSchema (Join-Path $datadir sample-openapi.json) |Should -BeExactly @'
+			(Export-OpenApiSchema "$PSScriptRoot/data/sample-openapi.json") -replace '\r' |
+				Should -BeExactly (@'
 {
   "required": [
     "id",
@@ -30,17 +31,18 @@ Describe 'Export-OpenApiSchema' -Tag Export-OpenApiSchema {
   "type": "object",
   "$schema": "http://json-schema.org/draft-04/schema#"
 }
-'@
+'@ -replace '\r')
 		}
 		It "Exports the request schema from sample schema" {
-			Export-OpenApiSchema (Join-Path $datadir sample-openapi.json) -RequestSchema |Should -BeExactly @'
+			(Export-OpenApiSchema "$PSScriptRoot/data/sample-openapi.json" -RequestSchema) -replace '\r' |
+				Should -BeExactly (@'
 {
   "type": "integer",
   "minimum": 1,
   "format": "int64",
   "$schema": "http://json-schema.org/draft-04/schema#"
 }
-'@
+'@ -replace '\r')
 		}
 	}
 }

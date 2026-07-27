@@ -3,6 +3,7 @@
 Tests running within a Polyglot Notebook, appending a cell to it.
 #>
 
+return #TODO: Probably retire the cmdlet entirely
 if(!(&"$PSScriptRoot/../scripts/Test-RelevantTest.ps1")) {return}
 BeforeAll {
 	Set-StrictMode -Version Latest
