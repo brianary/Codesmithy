@@ -16,5 +16,18 @@ permissions:
   actions: read
 
 jobs:
+  install-dependencies:
+    name: ➕ Install module dependencies
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Install JSONLab and PowerShellForGitHub
+        shell: pwsh
+        run: |
+          Install-PSResource JSONLab -Repository PSGallery -TrustRepository
+          Install-PSResource PowerShellForGitHub -Repository PSGallery -TrustRepository
   call-workflow:
+    needs: install-dependencies
     uses: brianary/actions/.github/workflows/continuous-integration.yml@main
