@@ -26,6 +26,7 @@ jobs:
       - name: Install JSONLab and PowerShellForGitHub
         shell: pwsh
         run: |
+          Install-PSResource Pester -Repository PSGallery -TrustRepository
           Install-PSResource JSONLab -Repository PSGallery -TrustRepository
           Install-PSResource PowerShellForGitHub -Repository PSGallery -TrustRepository
   call-workflow:
