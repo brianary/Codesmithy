@@ -34,21 +34,21 @@ Describe 'Copy-GitHubLabels' -Tag Copy-GitHubLabels {
 	Context 'Copies configured issue labels from one repo to another' -Tag CopyGitHubLabels,Copy,GitHubLabels {
 		It "Should add, update, and delete labels as needed by ReplaceAll mode" {
 			Copy-GitHubLabels -OwnerName owner -RepositoryName SourceRepo -DestinationRepositoryName DestRepo -Mode ReplaceAll
-			Should-Invoke -ModuleName Codesmithy -CommandName New-GitHubLabel -Times 1 -ParameterFilter {
+			Should -Invoke -ModuleName Codesmithy -CommandName New-GitHubLabel -Times 1 -ParameterFilter {
 				$OwnerName -eq 'owner' -and
 				$RepositoryName -eq 'DestRepo' -and
 				$Label -eq 'enhancement' -and
 				$Color -eq '84b6eb' -and
 				$Description -eq 'New functionality'
 			}
-			Should-Invoke -ModuleName Codesmithy -CommandName Set-GitHubLabel -Times 1 -ParameterFilter {
+			Should -Invoke -ModuleName Codesmithy -CommandName Set-GitHubLabel -Times 1 -ParameterFilter {
 				$OwnerName -eq 'owner' -and
 				$RepositoryName -eq 'DestRepo' -and
 				$Label -eq 'duplicate' -and
 				$Color -eq 'cccccc' -and
 				$Description -eq 'An issue that has already been reported.'
 			}
-			Should-Invoke -ModuleName Codesmithy -CommandName Remove-GitHubLabel -Times 1 -ParameterFilter {
+			Should -Invoke -ModuleName Codesmithy -CommandName Remove-GitHubLabel -Times 1 -ParameterFilter {
 				$OwnerName -eq 'owner' -and
 				$RepositoryName -eq 'DestRepo' -and
 				$Label -eq 'bug'
