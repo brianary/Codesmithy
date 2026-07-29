@@ -36,8 +36,9 @@ Process
     try
     {
         Push-Location $Repository.FullName
+		git remote update *>&1 |Out-Null
         return [pscustomobject]@{
-            In         = try{(git diff --summary '@{u}') ? $incoming : $null} catch {$_};
+            In         = try{(git status --porcelain) ? $incoming : $null} catch {$_};
             Out        = try{(git diff --name-only '@{u}') ? $outgoing : $null} catch {$_};
             Repository = $Repository.Name
         }
