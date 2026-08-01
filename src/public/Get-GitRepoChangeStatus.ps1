@@ -9,7 +9,7 @@ System.IO.DirectoryInfo
 https://git-scm.com/docs
 
 .EXAMPLE
-Get-ChildItem ~/GitHub -Directory |Get-GitRepoChangeStatus |Format-Table
+Get-ChildItem ~/GitHub -Directory |Get-GitRepoChangeStatus |Format-Table -AutoSize
 
 In Out Repository
 -- --- ----------
@@ -33,7 +33,8 @@ Begin
 }
 Process
 {
-	git -C $Repository.FullName rev-parse |Out-Null
+	if(!(Test-Path $Repository.FullName -Type Container)) {return}
+	git -C $Repository.FullName rev-parse *>&1 |Out-Null
 	if(!$?)
 	{
 		return [pscustomobject]@{
@@ -47,8 +48,8 @@ Process
         Push-Location $Repository.FullName
 		git remote update *>&1 |Out-Null
         return [pscustomobject]@{
-            In         = try{(git diff --name-only '@{u}') ? $outgoing : $null} catch {$_};
-            Out        = try{(git status --porcelain) ? $incoming : $null} catch {$_};
+            In         = try{(git diff --name-only '@{u}') ? $incoming : $null} catch {$_};
+            Out        = try{(git status --porcelain) ? $outgoing : $null} catch {$_};
             Repository = $Repository.Name
         }
     }
