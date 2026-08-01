@@ -29,17 +29,26 @@ In Out Repository
 )
 Begin
 {
-    $Script:incoming,$Script:outgoing = $AsEmoji ? @('📥️','📤️') : @('↓','↑')
+    $Script:incoming,$Script:outgoing,$Script:notgit = $AsEmoji ? @('📥️','📤️','⛔') : @('↓','↑','-')
 }
 Process
 {
+	git -C $Repository.FullName rev-parse |Out-Null
+	if(!$?)
+	{
+		return [pscustomobject]@{
+			In         = $notgit
+			Out        = $notgit
+			Repository = $Repository.Name
+		}
+	}
     try
     {
         Push-Location $Repository.FullName
 		git remote update *>&1 |Out-Null
         return [pscustomobject]@{
-            In         = try{(git status --porcelain) ? $incoming : $null} catch {$_};
-            Out        = try{(git diff --name-only '@{u}') ? $outgoing : $null} catch {$_};
+            In         = try{(git diff --name-only '@{u}') ? $outgoing : $null} catch {$_};
+            Out        = try{(git status --porcelain) ? $incoming : $null} catch {$_};
             Repository = $Repository.Name
         }
     }
