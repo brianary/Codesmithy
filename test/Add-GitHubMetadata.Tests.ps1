@@ -3,7 +3,6 @@
 Tests Adds GitHub Linguist overrides to a repo's .gitattributes.
 #>
 
-return #TODO: Re-enable
 if(!(&"$PSScriptRoot/../scripts/Test-RelevantTest.ps1")) {return}
 BeforeAll {
 	Set-StrictMode -Version Latest
@@ -13,9 +12,17 @@ BeforeAll {
 }
 Describe 'Add-GitHubMetadata' -Tag Add-GitHubMetadata {
 	BeforeEach {
-		Push-Location (mkdir ( $IsWindows ? "TestDrive:\$(New-Guid)" : "/var/tmp/$(New-Guid)" ))
+		Push-Location (New-Item -Path ( $IsWindows ? "TestDrive:\$(New-Guid)" : "/var/tmp/$(New-Guid)" ) -Type Directory)
+		Get-ChildItem -File -Force |Measure-Object |Select-Object -ExpandProperty Count |Should -BeExactly 0 `
+			-Because "the test location should start as an empty directory, '$PWD' is not empty"
+		git rev-parse --show-toplevel 2>&1 |Out-Null
+		$? |Should -BeFalse -Because "should not be in a git repository, '$PWD' is a git repo"
 		git init |Write-Information -infa Continue
-		'' |Out-File nothing
+		git rev-parse --show-toplevel 2>&1 |Out-Null
+		$? |Should -BeTrue -Because "git repository should have initialized, '$PWD' is still not a git repo"
+		git version |Out-File gitversion.txt ascii
+		Get-ChildItem -File -Force |Measure-Object |Select-Object -ExpandProperty Count |Should -BeGreaterThan 0 `
+			-Because "the test location should now contain files, '$PWD' is still empty"
 		git add -A
 		git commit -m first |Write-Information -infa Continue
 		git status |Write-Information -infa Continue
