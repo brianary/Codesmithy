@@ -182,7 +182,8 @@ function Copy-GitHubFile
 	[Parameter(Position=1,Mandatory=$true)][Alias('Path','Url')][uri] $Source
 	)
 	if(Test-KeepFile $Filename){return}
-	if($Source.IsFile){Copy-Item $Source.LocalPath $Filename}
+	elseif($Source.IsFile){Copy-Item $Source.LocalPath $Filename}
+	elseif((!$Source.IsAbsoluteUri) -and (Test-Path "$Source" -Type Leaf)){Copy-Item "$Source" $Filename}
 	else{Invoke-WebRequest $Source -OutFile $Filename} #TODO: authentication for private repos?
 }
 
