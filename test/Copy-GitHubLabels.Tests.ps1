@@ -7,7 +7,6 @@ if(!(&"$PSScriptRoot/../scripts/Test-RelevantTest.ps1")) {return}
 BeforeAll {
 	Set-StrictMode -Version Latest
 	&"$PSScriptRoot/../scripts/Import-ThisModule.ps1"
-	#TODO: Figure out PowerShellForGitHub dependency.
 }
 Describe 'Copy-GitHubLabels' -Tag Copy-GitHubLabels {
 	BeforeEach {

@@ -16,7 +16,9 @@ dotnet-repl                  0.1.216     jonsequitur            117599       Fal
 
 [CmdletBinding()] Param(
 # The name of the tool to search for.
-[Parameter(Position=0,Mandatory=$true)][string] $Name
+[Parameter(Position=0,Mandatory=$true)][string] $Name,
+# Requires an exact package match.
+[switch] $Exact
 )
 
 if(!(Get-Command dotnet -Type Application -ErrorAction Ignore))
@@ -26,6 +28,7 @@ if(!(Get-Command dotnet -Type Application -ErrorAction Ignore))
 foreach($line in dotnet tool search $Name |Where-Object {$_ -match '^\S+\s+\d+(?:\.\d+)+\b'})
 {
 	$package,$version,$authors,$downloads,$verified = $line -split '\s\s+',5
+	if($Exact -and ($package -ne $Name)) {continue}
 	[pscustomobject]@{
 		PackageName = $package
 		Version     = try{[semver]$version}catch{try{[version]$version}catch{$version}};

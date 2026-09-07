@@ -54,7 +54,6 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM
 # Additional claims to add to the body of the JWT.
 [hashtable] $Claims = @{}
 )
-#TODO: Add or replace dependencies.
 function ConvertTo-JSON64($o) {ConvertTo-Base64 ([Text.Encoding]::UTF8.GetBytes((ConvertTo-Json $o -Compress))) -UriStyle}
 function ConvertTo-NumericDate([datetime]$d)
 {
