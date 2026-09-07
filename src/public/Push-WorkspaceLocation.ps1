@@ -15,6 +15,6 @@ Pushes the current directory onto the stack, and changes to the workspace direct
 #>
 
 [CmdletBinding()][OutputType([void])] Param()
-#TODO: Add or replace dependency.
-if(Test-Variable.ps1 psEditor) {Push-Location $psEditor.Workspace.Path}
+if(ModernConveniences\Test-Variable psEditor) {Push-Location $psEditor.Workspace.Path}
 else {throw 'Missing psEditor object'}
+

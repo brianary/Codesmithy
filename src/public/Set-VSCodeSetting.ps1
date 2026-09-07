@@ -40,12 +40,16 @@ element name with a /, and literal / is escaped as ~1, and literal ~ is escaped 
 # Indicates that the current workspace settings should be set, rather than the user settings.
 [switch] $Workspace
 )
-
 ${settings.json} = Get-VSCodeSettingsFile -Workspace:$Workspace
-
-if(!(${settings.json} |Split-Path |Test-Path -PathType Container)) {mkdir (${settings.json} |Split-Path) |Out-Null}
-if(!(Test-Path ${settings.json} -PathType Leaf)) {'{}' |Out-File ${settings.json} -Encoding utf8}
-
+if(!(${settings.json} |Split-Path |Test-Path -PathType Container))
+{
+	New-Item (${settings.json} |Split-Path) -Type Directory |Out-Null
+}
+if(!(Test-Path ${settings.json} -PathType Leaf))
+{
+	'{}' |Out-File ${settings.json} -Encoding utf8
+}
 $settings = Get-Content ${settings.json} -Raw
-#TODO: Add or replace dependency.
-$settings |JSONLab\Set-Json $JsonPointer $Value -WarnOverwrite |Out-File ${settings.json} -Encoding utf8
+$settings |
+	JSONLab\Set-Json $JsonPointer $Value -WarnOverwrite |
+	Out-File ${settings.json} -Encoding utf8
