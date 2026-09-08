@@ -23,7 +23,7 @@ In Out Repository
 
 [CmdletBinding()] Param(
 # The directory containing the local git repository.
-[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true)][IO.DirectoryInfo] $Repository,
+[Parameter(Position=0,ValueFromPipeline=$true)][IO.DirectoryInfo] $Repository = '.',
 # Indicates that Emoji status characters should be returned.
 [switch] $AsEmoji
 )
@@ -34,23 +34,27 @@ Begin
 Process
 {
 	if(!(Test-Path $Repository.FullName -Type Container)) {return}
+	Push-Location $Repository.FullName
+	[IO.DirectoryInfo] $root = git rev-parse --show-toplevel
+	Pop-Location
+	Push-Location $root.FullName
+	$name = $root |Get-RepoName
 	git -C $Repository.FullName rev-parse *>&1 |Out-Null
 	if(!$?)
 	{
 		return [pscustomobject]@{
 			In         = $notgit
 			Out        = $notgit
-			Repository = $Repository.Name
+			Repository = $name
 		}
 	}
     try
     {
-        Push-Location $Repository.FullName
 		git remote update *>&1 |Out-Null
         return [pscustomobject]@{
             In         = try{(git diff --name-only '@{u}') ? $incoming : $null} catch {$_};
             Out        = try{(git status --porcelain) ? $outgoing : $null} catch {$_};
-            Repository = $Repository.Name
+            Repository = $name
         }
     }
     finally {Pop-Location}
