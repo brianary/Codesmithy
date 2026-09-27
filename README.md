@@ -16,6 +16,7 @@ Utilities for .NET programmers.
 - [Add-GitHubMetadata](https://github.com/brianary/Codesmithy/wiki/Add-GitHubMetadata): Adds GitHub Linguist overrides to a repo's .gitattributes.
 - [Add-VsCodeDatabaseConnection](https://github.com/brianary/Codesmithy/wiki/Add-VsCodeDatabaseConnection): Adds a VS Code MSSQL database connection to the repo.
 - [Copy-GitHubLabels](https://github.com/brianary/Codesmithy/wiki/Copy-GitHubLabels): Copies configured issue labels from one repo to another.
+- [Export-DataRefHtml](https://github.com/brianary/Codesmithy/wiki/Export-DataRefHtml): Renders an XML schema or WSDL using Saxon into readable HTML.
 - [Export-OpenApiSchema](https://github.com/brianary/Codesmithy/wiki/Export-OpenApiSchema): Extracts a JSON schema from an OpenAPI definition.
 - [Find-DotNetTools](https://github.com/brianary/Codesmithy/wiki/Find-DotNetTools): Returns a list of matching dotnet tools.
 - [Get-AssemblyFramework](https://github.com/brianary/Codesmithy/wiki/Get-AssemblyFramework): Gets the framework version an assembly was compiled for.
