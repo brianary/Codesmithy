@@ -38,7 +38,7 @@ Export-ModuleMember -Function $($public.BaseName -join ',')
 
 	$PSScriptRoot |Split-Path |Push-Location
 	New-Item .publish -Type Directory -ErrorAction Ignore |Out-Null
-	Copy-Item (Join-Path src *.psd1) .publish
+	Copy-Item (Get-ChildItem src -File) .publish
 }
 Process
 {
