@@ -56,14 +56,18 @@ Process
 	$destination = @{ OwnerName = $DestinationOwnerName; RepositoryName = $DestinationRepositoryName }
 	[pscustomobject[]] $labels = Get-GitHubLabel @destination
 	$source |Where-Object LabelName -NotIn $labels.LabelName |
-		ForEach-Object {New-GitHubLabel @destination -Label $_.name -Color $_.color -Description $_.description}
+		ForEach-Object {New-GitHubLabel @destination -Label $_.name -Color $_.color -Description $_.description} |
+		Select-Object @{n='Action';e={'Added'}},Name,Color,Description
 	if($Mode -ne 'AddNew')
 	{
 		$source |Where-Object LabelName -In $labels.LabelName |
-			ForEach-Object {Set-GitHubLabel @destination -Label $_.name -Color $_.color -Description $_.description}
+			ForEach-Object {Set-GitHubLabel @destination -Label $_.name -Color $_.color -Description $_.description -PassThru} |
+			Select-Object @{n='Action';e={'Updated'}},Name,Color,Description
 		if($Mode -eq 'ReplaceAll')
 		{
-			$labels |Where-Object LabelName -NotIn $source.LabelName |Remove-GitHubLabel @destination
+			$remove = $labels |Where-Object LabelName -NotIn $source.LabelName
+			$remove |Select-Object @{n='Action';e={'Removed'}},Name,Color,Description
+			$remove |Remove-GitHubLabel @destination
 		}
 	}
 }
